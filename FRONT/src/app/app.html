@@ -1,0 +1,50 @@
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tarea Paises</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body class="bg-light p-4">
+    <div class="container">
+      <h1 class="mb-4">Países por Continente</h1>
+
+      <!-- Continentes -->
+      <p>Selecciona un continente</p>
+      <select
+        [(ngModel)]="continenteSeleccionado"
+        (ngModelChange)="getDatos($event)"
+        class="form-select w-50 mb-4"
+      >
+        <option value="europe">Europa</option>
+        <option value="africa">África</option>
+        <option value="americas">América</option>
+        <option value="asia">Asia</option>
+        <option value="oceania">Oceanía</option>
+      </select>
+
+      <!-- Cartas de banderas -->
+      <div class="row">
+        @for (bandera of banderas(); track bandera.name.common) {
+          <div class="col-md-4 mb-3">
+            <div class="card h-100 p-3">
+              <img [src]="bandera.flags.svg" class="card-img-top" />
+              <div class="card-body">
+                <h3 class="h3">{{ bandera.name.common }}</h3>
+                <small class="h5">Capital: {{ bandera.capital?.[0] }}</small>
+              </div>
+            </div>
+          </div>
+          <!-- Si la lista está vacía -->
+        } @empty {
+          <p>No hay banderas.</p>
+        }
+      </div>
+    </div>
+  </body>
+</html>
