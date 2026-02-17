@@ -1,0 +1,30 @@
+<div class="container">
+  <h1 class="mb-4">Productos</h1>
+
+  @if (cargando()) {
+    <p>Cargando productos...</p>
+  } @else {
+    <div class="row">
+      @for (producto of productos(); track producto.id) {
+        <div class="col-md-4 mb-3">
+          <div class="card h-100 p-3 shadow-sm">
+            <div class="card-body">
+              <h3 class="h4 card-title">{{ producto.nombre }}</h3>
+              <h6 class="card-subtitle mb-2 text-muted">{{ producto.categoria }}</h6>
+              <p class="card-text mt-2">{{ producto.descripcion }}</p>
+
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <span class="fs-5 fw-bold text-success">${{ producto.precio }}</span>
+                <small class="text-secondary">Stock: {{ producto.stock }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="col-12">
+          <p class="alert alert-info">No hay productos disponibles.</p>
+        </div>
+      }
+    </div>
+  }
+</div>
