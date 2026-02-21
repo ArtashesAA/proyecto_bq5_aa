@@ -1,14 +1,24 @@
+// Error not found
 function notFound(req, res, next) {
   res.status(404);
-  const error = new Error('Not Found', req.originalUrl);
+  const error = new Error("Not Found", req.originalUrl);
   next(error);
 }
 
+// Error general
 function errorHandler(err, req, res, next) {
-  res.status(res.statusCode || 500);
+  // Error de conexión Oracle
+  if (err.message && err.message.includes("ORA-")) {
+    return res.status(500).json({
+      message: "Error de conexión con la base de datos.",
+    });
+  }
+
+  // Error general
+  res.status(res.statusCode && res.statusCode !== 200 ? res.statusCode : 500);
+
   res.json({
-    message: err.message,
-    stack: err.stack,
+    message: err.message || "Error interno del servidor",
   });
 }
 
