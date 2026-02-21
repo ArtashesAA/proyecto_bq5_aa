@@ -1,5 +1,6 @@
 const oracledb = require("oracledb");
 
+// Conexión
 async function getConnection() {
   return await oracledb.getConnection({
     user: "TIENDA",

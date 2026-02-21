@@ -1,11 +1,11 @@
-const express = require('express');
-const oracledb = require('oracledb');
-const { getConnection } = require('../db/oracle');
+const express = require("express");
+const oracledb = require("oracledb");
+const { getConnection } = require("../db/oracle");
 
 const router = express.Router();
 
 /* Obtener todos los productos */
-router.get('/', async (req, res, next) => {
+router.get("/", async (req, res, next) => {
   let connection;
 
   try {
@@ -14,11 +14,10 @@ router.get('/', async (req, res, next) => {
     const result = await connection.execute(
       `SELECT * FROM PRODUCTOS ORDER BY ID`,
       [],
-      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+      { outFormat: oracledb.OUT_FORMAT_OBJECT },
     );
 
     res.json(result.rows);
-
   } catch (error) {
     next(error);
   } finally {
@@ -26,113 +25,46 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-/* Obtener producto por ID */
-router.get('/:id', async (req, res, next) => {
+/* Devuelve un objeto por nombre */
+router.get("/buscar/:nombre", async (req, res, next) => {
   let connection;
 
   try {
     connection = await getConnection();
-    const { id } = req.params;
+    const { nombre } = req.params;
+
+    // Comando
+    const result = await connection.execute(
+      `SELECT * FROM PRODUCTOS 
+       WHERE LOWER(NOMBRE) LIKE LOWER(:nombre)`,
+      [`%${nombre}%`],
+    );
+
+    // Resultado
+    res.json(result.rows);
+  } catch (error) {
+    next(error);
+  } finally {
+    if (connection) await connection.close();
+  }
+});
+
+/* Filtra por categoría */
+router.get("/categoria/:categoria", async (req, res, next) => {
+  let connection;
+
+  try {
+    connection = await getConnection();
+    const { categoria } = req.params;
 
     const result = await connection.execute(
-      `SELECT * FROM PRODUCTOS WHERE ID = :id`,
-      [id],
-      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+      `SELECT * FROM PRODUCTOS 
+       WHERE LOWER(CATEGORIA) LIKE LOWER(:categoria)`,
+      [`%${categoria}%`],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT },
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Producto no encontrado" });
-    }
-
-    res.json(result.rows[0]);
-
-  } catch (error) {
-    next(error);
-  } finally {
-    if (connection) await connection.close();
-  }
-});
-
-/* Crear producto */
-router.post('/', async (req, res, next) => {
-  let connection;
-
-  try {
-    connection = await getConnection();
-
-    const { nombre, categoria, descripcion, precio, stock } = req.body;
-
-    await connection.execute(
-      `INSERT INTO PRODUCTOS 
-       (NOMBRE, CATEGORIA, DESCRIPCION, PRECIO, STOCK)
-       VALUES (:nombre, :categoria, :descripcion, :precio, :stock)`,
-      [nombre, categoria, descripcion, precio, stock],
-      { autoCommit: true }
-    );
-
-    res.status(201).json({ message: "Producto creado correctamente" });
-
-  } catch (error) {
-    next(error);
-  } finally {
-    if (connection) await connection.close();
-  }
-});
-
-/* Actualizar producto */
-router.put('/:id', async (req, res, next) => {
-  let connection;
-
-  try {
-    connection = await getConnection();
-    const { id } = req.params;
-    const { nombre, categoria, descripcion, precio, stock } = req.body;
-
-    const result = await connection.execute(
-      `UPDATE PRODUCTOS
-       SET NOMBRE = :nombre,
-           CATEGORIA = :categoria,
-           DESCRIPCION = :descripcion,
-           PRECIO = :precio,
-           STOCK = :stock
-       WHERE ID = :id`,
-      [nombre, categoria, descripcion, precio, stock, id],
-      { autoCommit: true }
-    );
-
-    if (result.rowsAffected === 0) {
-      return res.status(404).json({ message: "Producto no encontrado" });
-    }
-
-    res.json({ message: "Producto actualizado correctamente" });
-
-  } catch (error) {
-    next(error);
-  } finally {
-    if (connection) await connection.close();
-  }
-});
-
-/* Eliminar producto */
-router.delete('/:id', async (req, res, next) => {
-  let connection;
-
-  try {
-    connection = await getConnection();
-    const { id } = req.params;
-
-    const result = await connection.execute(
-      `DELETE FROM PRODUCTOS WHERE ID = :id`,
-      [id],
-      { autoCommit: true }
-    );
-
-    if (result.rowsAffected === 0) {
-      return res.status(404).json({ message: "Producto no encontrado" });
-    }
-
-    res.json({ message: "Producto eliminado correctamente" });
-
+    res.json(result.rows);
   } catch (error) {
     next(error);
   } finally {

@@ -1,30 +1,148 @@
-<div class="container">
-  <h1 class="mb-4">Productos</h1>
+<div class="d-flex min-vh-100">
+  <!-- Sidebar -->
+  @if (sidebarVisible()) {
+    <aside class="border-end bg-light vh-100 sticky-top shadow-sm" style="width: 450px">
+      <div class="d-flex flex-column p-3 h-100">
+        <a
+          href="/"
+          class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none"
+        >
+          <span class="fs-4 fw-bold">Segunda Mano</span>
+        </a>
+        <hr />
+        <ul class="nav nav-pills flex-column mb-auto">
+          <li class="nav-item">
+            <a
+              href="#"
+              class="nav-link"
+              [class.active]="categoriaActiva() === 'Todos'"
+              (click)="cargarTodos(); $event.preventDefault()"
+            >
+              Todos
+            </a>
+          </li>
 
-  @if (cargando()) {
-    <p>Cargando productos...</p>
-  } @else {
-    <div class="row">
-      @for (producto of productos(); track producto.id) {
-        <div class="col-md-4 mb-3">
-          <div class="card h-100 p-3 shadow-sm">
-            <div class="card-body">
-              <h3 class="h4 card-title">{{ producto.nombre }}</h3>
-              <h6 class="card-subtitle mb-2 text-muted">{{ producto.categoria }}</h6>
-              <p class="card-text mt-2">{{ producto.descripcion }}</p>
+          <li>
+            <a
+              href="#"
+              class="nav-link"
+              [class.active]="categoriaActiva() === 'Electrónica'"
+              (click)="filtrarPorCategoria('Electrónica'); $event.preventDefault()"
+            >
+              Electrónica
+            </a>
+          </li>
 
-              <div class="d-flex justify-content-between align-items-center mt-3">
-                <span class="fs-5 fw-bold text-success">${{ producto.precio }}</span>
-                <small class="text-secondary">Stock: {{ producto.stock }}</small>
-              </div>
+          <li>
+            <a
+              href="#"
+              class="nav-link"
+              [class.active]="categoriaActiva() === 'Portátiles'"
+              (click)="filtrarPorCategoria('Portátiles'); $event.preventDefault()"
+            >
+              Portátiles
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="#"
+              class="nav-link"
+              [class.active]="categoriaActiva() === 'Accesorios'"
+              (click)="filtrarPorCategoria('Accesorios'); $event.preventDefault()"
+            >
+              Accesorios
+            </a>
+          </li>
+        </ul>
+      </div>
+    </aside>
+  }
+
+  <div class="flex-grow-1 d-flex flex-column">
+    <header class="navbar navbar-light bg-white shadow-sm px-3 sticky-top">
+      <!-- Boton hamburguesa -->
+      <div class="d-flex align-items-center">
+        <button
+          class="btn btn-light border-0 me-2 d-flex align-items-center"
+          type="button"
+          (click)="cambiarMenu()"
+        >
+          <span class="navbar-cambiarMenu-icon"></span>
+        </button>
+        <span class="navbar-brand mb-0 h1 ms-2">Panel</span>
+      </div>
+    </header>
+
+    <main class="container-fluid py-5">
+      <!-- Input búsqueda -->
+      <section class="search-section mb-5">
+        <div class="row justify-content-center">
+          <div class="col-12 col-md-8 col-lg-6">
+            <div class="input-group shadow-sm">
+              <input
+                type="text"
+                class="form-control form-control-lg"
+                placeholder="Buscar producto..."
+                #searchInput
+              />
+              <button class="btn btn-primary px-4" (click)="buscar(searchInput.value)">
+                Buscar
+              </button>
             </div>
           </div>
         </div>
-      } @empty {
-        <div class="col-12">
-          <p class="alert alert-info">No hay productos disponibles.</p>
+      </section>
+
+      <!-- En caso de error -->
+      @if (mensajeError()) {
+        <div class="alert alert-danger shadow-sm text-center" role="alert">
+          {{ mensajeError() }}
         </div>
       }
-    </div>
-  }
+
+      <section class="productos-grid">
+        <!-- Carga -->
+        @if (cargando()) {
+          <div class="d-flex justify-content-center my-5">
+            <div class="spinner-border text-primary" role="status"></div>
+          </div>
+        } @else {
+          <!-- Productos -->
+          <div class="row g-4">
+            @for (p of productos(); track p.id) {
+              <article class="col-12 col-md-6 col-lg-4 col-xl-3">
+                <div class="card h-100 shadow-sm border-0 bg-light card-hover">
+                  <div class="img-wrapper bg-white">
+                    <img [src]="p.imagen" [alt]="p.nombre" class="card-img-top" />
+                  </div>
+                  <div class="card-body d-flex flex-column">
+                    <span class="badge bg-secondary mb-2 align-self-start">{{ p.categoria }}</span>
+                    <h3 class="h5 card-title fw-bold">{{ p.nombre }}</h3>
+                    <p class="card-text text-muted small text-truncate-2">{{ p.descripcion }}</p>
+                    <div
+                      class="mt-auto d-flex justify-content-between align-items-center pt-3 border-top"
+                    >
+                      <span class="fw-bold text-success fs-5">${{ p.precio }}</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            } @empty {
+              <div class="col-12 text-center mt-4">
+                <div class="alert alert-info shadow-sm">No se encontraron productos.</div>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-auto">
+      <div class="container-fluid text-center">
+        <p class="mb-0">&copy; Segunda mano.</p>
+      </div>
+    </footer>
+  </div>
 </div>
